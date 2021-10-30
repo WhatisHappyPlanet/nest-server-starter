@@ -1,8 +1,22 @@
+import { isTest } from './constants/env';
 import { NestFactory } from '@nestjs/core';
 import IndexModule from './index.module';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(IndexModule);
-  await app.listen(3000);
+  if (isTest) {
+    const swaggerOptions = new DocumentBuilder()
+      .setTitle('接口文档')
+      .setDescription('nest接口文档') // 文档介绍
+      .setVersion('1.0.0') // 文档版本
+      .build();
+    // 为了创建完整的文档（具有定义的HTTP路由），我们使用类的createDocument()方法SwaggerModule。此方法带有两个参数，分别是应用程序实例和基本Swagger选项。
+    const document = SwaggerModule.createDocument(app, swaggerOptions);
+    SwaggerModule.setup('/api', app, document, {
+      customSiteTitle: 'nest js api',
+    });
+  }
+  await app.listen(3333);
 }
 bootstrap();
